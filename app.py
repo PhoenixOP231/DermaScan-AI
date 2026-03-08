@@ -479,40 +479,46 @@ def load_model() -> nn.Module:
 #  Security Gatekeeper — Skin-Pixel Validation
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def is_skin_image(pil_image: Image.Image, threshold: float = 0.15) -> bool:
+def is_skin_image(pil_image: Image.Image, threshold: float = 0.20) -> bool:
     """
     Verifies that the uploaded image contains a sufficient proportion of
     skin-tone pixels before allowing model inference.
 
-    Applies the Kovac et al. (2002) explicit RGB skin segmentation rules:
+    Uses a dual color-space approach — both conditions must be satisfied
+    simultaneously (intersection), which dramatically reduces false positives
+    from monitors, objects, animals, and plain backgrounds.
 
+    Rule 1 — Kovac et al. (2002) explicit RGB skin segmentation:
         R > 95  AND  G > 40  AND  B > 20
         max(R,G,B) − min(R,G,B) > 15
         |R − G| > 15  AND  R > G  AND  R > B
 
-    These rules have high specificity across a wide range of skin tones
-    under standard illumination.  If fewer than ``threshold`` (default 15%)
-    of all pixels satisfy every rule, the image is rejected to prevent
-    the model from producing misleading predictions on non-dermatological
-    photographs.
+    Rule 2 — Peer et al. YCbCr skin range (Cb in [77,127], Cr in [133,173]):
+        A pixel's chrominance channels must fall within the skin locus
+        in the YCbCr space.  Screens, paper, and most non-skin objects
+        emit/reflect blue-shifted or neutral light that falls outside
+        this locus and therefore fail this rule even when their RGB
+        values superficially resemble skin tones.
 
     Parameters
     ----------
     pil_image : PIL.Image
         The user-uploaded image (any size, any mode).
     threshold : float
-        Minimum fraction of pixels (0–1) that must register as skin.
+        Minimum fraction of pixels (0–1) that must satisfy BOTH rules.
+        Default raised to 0.20 (20%) for stricter real-world rejection.
 
     Returns
     -------
     bool
-        True  — image passes the skin-content test.
+        True  — image passes the dual skin-content test.
         False — rejection; caller should display an error to the user.
     """
-    img = np.array(pil_image.convert("RGB"), dtype=np.float32)
-    R, G, B = img[:, :, 0], img[:, :, 1], img[:, :, 2]
+    img_rgb = np.array(pil_image.convert("RGB"), dtype=np.float32)
+    R, G, B = img_rgb[:, :, 0], img_rgb[:, :, 1], img_rgb[:, :, 2]
 
-    skin_mask = (
+    # ── Rule 1: Kovac RGB ────────────────────────────────────────────────────
+    rgb_mask = (
           (R > 95) & (G > 40) & (B > 20)
         & (  np.maximum(np.maximum(R, G), B)
            - np.minimum(np.minimum(R, G), B) > 15)
@@ -520,7 +526,14 @@ def is_skin_image(pil_image: Image.Image, threshold: float = 0.15) -> bool:
         & (R > G) & (R > B)
     )
 
-    skin_ratio = float(skin_mask.sum()) / float(skin_mask.size)
+    # ── Rule 2: YCbCr chrominance locus ─────────────────────────────────────
+    img_ycbcr = np.array(pil_image.convert("YCbCr"), dtype=np.float32)
+    Cb, Cr    = img_ycbcr[:, :, 1], img_ycbcr[:, :, 2]
+    ycbcr_mask = (Cb >= 77) & (Cb <= 127) & (Cr >= 133) & (Cr <= 173)
+
+    # ── Intersection: pixel must pass BOTH rules ─────────────────────────────
+    combined_mask = rgb_mask & ycbcr_mask
+    skin_ratio    = float(combined_mask.sum()) / float(combined_mask.size)
     return skin_ratio >= threshold
 
 
@@ -891,10 +904,9 @@ def main():
 
         if not skin_ok:
             st.error(
-                "**🚫 Skin Validation Failed**\n\n"
-                "The uploaded image contains **< 15% skin-tone pixels**.  \n"
-                "Please upload a clear, close-up photograph of a skin lesion "
-                "(dermoscopy image or clinical skin photo)."
+                "🚫 **Invalid Image — Please upload a valid skin image.**\n\n"
+                "The uploaded file does not appear to contain a skin lesion. "
+                "Only clear, close-up photographs or dermoscopy images of skin are accepted."
             )
             st.markdown(_FOOTER, unsafe_allow_html=True)
             return
