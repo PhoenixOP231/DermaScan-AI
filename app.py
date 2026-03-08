@@ -733,16 +733,11 @@ def render_sidebar():
     with st.sidebar:
         # Logo + brand name
         st.markdown(
-            f"""
-            <div class="sidebar-logo">
-                {_LOGO_SVG}
-                <span class="sidebar-logo-text">DermaScan AI</span>
-            </div>
-            <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:0.75rem;
-                        font-family:'Inter',sans-serif; letter-spacing:0.04em;">
-                AI-Powered Skin Cancer Detection
-            </div>
-            """,
+            f'<div class="sidebar-logo">{_LOGO_SVG}'
+            '<span class="sidebar-logo-text">DermaScan AI</span></div>'
+            '<div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:0.75rem;'
+            'font-family:Inter,sans-serif;letter-spacing:0.04em;">'
+            'AI-Powered Skin Cancer Detection</div>',
             unsafe_allow_html=True,
         )
         st.divider()
@@ -805,20 +800,13 @@ _DISCLAIMER = (
     "solely for educational and research purposes."
 )
 
-_FOOTER = """
-<div class="footer">
-    <strong>DermaScan AI</strong>
-    <span class="dot">◆</span>
-    <span class="tag">HAM10000 · ResNet18 · Grad-CAM XAI</span><br>
-    <span style="font-size:0.76rem; font-family:'Inter',sans-serif;">
-        3rd Year Engineering Project
-        <span class="dot">·</span>
-        B.E. Computer Engineering
-        <span class="dot">·</span>
-        Academic Year 2025–26
-    </span>
-</div>
-"""
+_FOOTER = (
+'<div class="footer">'
+'<strong>DermaScan AI</strong>'
+'<span class="dot">◆</span>'
+'<span class="tag">HAM10000 · ResNet18 · Grad-CAM XAI</span>'
+'</div>'
+)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -843,21 +831,12 @@ def main():
 
     # ── Hero Banner ──────────────────────────────────────────────────────────
     st.markdown(
-        f"""
-        <div class="hero-banner">
-            <div class="hero-logo-row">
-                {_LOGO_SVG}
-                <div>
-                    <div class="hero-title">DermaScan AI</div>
-                </div>
-            </div>
-            <div class="hero-subtitle">
-                AI-Powered Skin Cancer Detection &nbsp;·&nbsp;
-                ResNet18 + Grad-CAM Explainability
-            </div>
-            <div class="hero-badge">HAM10000 · 7 Classes · FP16 Model</div>
-        </div>
-        """,
+        f'<div class="hero-banner">'
+        f'<div class="hero-logo-row">{_LOGO_SVG}'
+        f'<div><div class="hero-title">DermaScan AI</div></div></div>'
+        f'<div class="hero-subtitle">AI-Powered Skin Cancer Detection &nbsp;·&nbsp; ResNet18 + Grad-CAM Explainability</div>'
+        f'<div class="hero-badge">HAM10000 · 7 Classes · FP16 Model</div>'
+        f'</div>',
         unsafe_allow_html=True,
     )
     st.warning(_DISCLAIMER)
