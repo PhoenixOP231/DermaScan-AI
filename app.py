@@ -6,6 +6,7 @@ AI-powered skin cancer detection with:
   • Grad-CAM explainability heatmap overlay
   • Auto dark / light mode via CSS custom properties
   • Fully mobile-responsive (Android · iOS · tablet · desktop)
+  • Premium UI: Inter + JetBrains Mono fonts, SVG logo, glassmorphism cards
 
 3rd-Year Engineering Project — B.E. Computer Engineering | 2025–26
 """
@@ -39,174 +40,340 @@ st.set_page_config(
 
 _CSS = """
 <style>
+/* ═══════════════════ Google Fonts ══════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
 /* ═══════════════════ CSS Custom Properties ══════════════════════════════════
-   Automatically switches between dark and light themes based on the OS /
-   browser preference via prefers-color-scheme.                              */
+   Dark theme by default; light theme via prefers-color-scheme               */
 :root {
-    --bg-primary     : #0d1117;
-    --bg-secondary   : #161b22;
-    --bg-tertiary    : #21262d;
-    --border         : #30363d;
-    --text-primary   : #e6edf3;
-    --text-secondary : #c9d1d9;
-    --text-muted     : #8b949e;
-    --text-faint     : #6e7681;
-    --accent-start   : #6e40c9;
-    --accent-end     : #2ea8e2;
-    --success        : #3fb950;
-    --warning        : #f4a261;
-    --danger         : #e63946;
-    --heart          : #e63946;
-    --scrollbar-thumb: #30363d;
+    --bg-primary      : #080c14;
+    --bg-secondary    : #0e1521;
+    --bg-card         : #111827;
+    --bg-glass        : rgba(17, 24, 39, 0.75);
+    --border          : rgba(99, 179, 237, 0.12);
+    --border-bright   : rgba(99, 179, 237, 0.25);
+    --text-primary    : #f0f6ff;
+    --text-secondary  : #b8c8e0;
+    --text-muted      : #6b8299;
+    --text-faint      : #3d5166;
+    --accent-1        : #6366f1;
+    --accent-2        : #06b6d4;
+    --accent-3        : #8b5cf6;
+    --gradient-hero   : linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+    --gradient-card   : linear-gradient(145deg, #111827 0%, #0e1521 100%);
+    --success         : #10b981;
+    --warning         : #f59e0b;
+    --danger          : #ef4444;
+    --scrollbar-thumb : #1e3a5f;
+    --shadow-card     : 0 4px 24px rgba(0,0,0,0.4), 0 1px 4px rgba(99,179,237,0.06);
+    --shadow-glow     : 0 0 30px rgba(99, 102, 241, 0.15);
 }
 @media (prefers-color-scheme: light) {
     :root {
-        --bg-primary     : #f6f8fa;
-        --bg-secondary   : #ffffff;
-        --bg-tertiary    : #eaeef2;
-        --border         : #d0d7de;
-        --text-primary   : #1f2328;
-        --text-secondary : #24292f;
-        --text-muted     : #57606a;
-        --text-faint     : #848d97;
-        --accent-start   : #5a32a3;
-        --accent-end     : #1a7fb5;
-        --success        : #1a7f37;
-        --warning        : #b35900;
-        --danger         : #cf222e;
-        --heart          : #cf222e;
-        --scrollbar-thumb: #d0d7de;
+        --bg-primary      : #f0f4f8;
+        --bg-secondary    : #ffffff;
+        --bg-card         : #ffffff;
+        --bg-glass        : rgba(255,255,255,0.85);
+        --border          : #dde3ea;
+        --border-bright   : #c5d0de;
+        --text-primary    : #0f1923;
+        --text-secondary  : #2d3d4f;
+        --text-muted      : #5a6e82;
+        --text-faint      : #8fa3b8;
+        --accent-1        : #4f46e5;
+        --accent-2        : #0891b2;
+        --accent-3        : #7c3aed;
+        --gradient-hero   : linear-gradient(135deg, #4f46e5 0%, #0891b2 100%);
+        --gradient-card   : linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+        --success         : #059669;
+        --warning         : #d97706;
+        --danger          : #dc2626;
+        --scrollbar-thumb : #c5d0de;
+        --shadow-card     : 0 2px 16px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06);
+        --shadow-glow     : 0 0 30px rgba(79, 70, 229, 0.08);
     }
 }
 
-/* ── Global ── */
+/* ═══════════════════ Base ═══════════════════════════════════════════════════ */
 html, body, [data-testid="stAppViewContainer"], .stApp {
-    background-color : var(--bg-primary) !important;
-    color            : var(--text-secondary) !important;
-    font-family      : 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont,
-                       'Helvetica Neue', Arial, sans-serif;
+    background    : var(--bg-primary) !important;
+    color         : var(--text-secondary) !important;
+    font-family   : 'Inter', system-ui, -apple-system, sans-serif !important;
+    font-size     : 15px;
+    line-height   : 1.6;
+}
+
+/* ── Wipe default Streamlit padding ── */
+.block-container {
+    padding-top   : 1.25rem !important;
+    padding-left  : 1.75rem !important;
+    padding-right : 1.75rem !important;
+    max-width     : 1160px  !important;
 }
 
 /* ── Sidebar ── */
 [data-testid="stSidebar"] {
-    background   : var(--bg-secondary) !important;
-    border-right : 1px solid var(--border);
-}
-[data-testid="stSidebar"] * {
-    color: var(--text-secondary) !important;
-}
-
-/* ── Main block container ── */
-.block-container {
-    padding-top   : 1.5rem  !important;
-    padding-left  : 1.5rem  !important;
-    padding-right : 1.5rem  !important;
-    max-width     : 1100px  !important;
-}
-
-/* ── File uploader zone ── */
-[data-testid="stFileUploader"] section {
-    border        : 2px dashed var(--border) !important;
-    border-radius : 12px;
     background    : var(--bg-secondary) !important;
-    min-height    : 80px;
-    cursor        : pointer;
+    border-right  : 1px solid var(--border);
+    padding-top   : 1rem;
 }
+[data-testid="stSidebar"] * { color: var(--text-secondary) !important; }
+[data-testid="stSidebar"] hr { border-color: var(--border) !important; }
 
-/* ── Primary buttons ── */
-.stButton > button {
-    background    : linear-gradient(135deg, var(--accent-start) 0%,
-                                            var(--accent-end)   100%);
-    color         : #ffffff !important;
-    border        : none;
-    border-radius : 8px;
-    padding       : 0.6rem 1.5rem;
-    font-weight   : 600;
-    font-size     : 1rem;
-    width         : 100%;
-    transition    : opacity 0.2s ease, transform 0.1s ease;
-    touch-action  : manipulation;   /* remove 300 ms tap delay on mobile */
+/* ══════════════════ Hero Banner ════════════════════════════════════════════ */
+.hero-banner {
+    background    : var(--gradient-hero);
+    border-radius : 18px;
+    padding       : 2.5rem 2rem 2rem 2rem;
+    margin-bottom : 1.5rem;
+    position      : relative;
+    overflow      : hidden;
+    box-shadow    : var(--shadow-glow);
 }
-.stButton > button:hover  { opacity: 0.85; }
-.stButton > button:active { transform: scale(0.97); }
-
-/* ── Progress bars ── */
-.stProgress > div > div > div > div {
-    background: linear-gradient(90deg, var(--accent-start),
-                                       var(--accent-end)) !important;
+.hero-banner::before {
+    content       : '';
+    position      : absolute;
+    top: -60px; right: -60px;
+    width: 260px; height: 260px;
+    background    : rgba(255,255,255,0.06);
+    border-radius : 50%;
 }
-
-/* ── Metric boxes ── */
-[data-testid="stMetric"] {
-    background    : var(--bg-secondary) !important;
-    border        : 1px solid var(--border);
-    border-radius : 10px;
-    padding       : 0.75rem 1rem;
+.hero-banner::after {
+    content       : '';
+    position      : absolute;
+    bottom: -80px; left: -40px;
+    width: 200px; height: 200px;
+    background    : rgba(255,255,255,0.04);
+    border-radius : 50%;
+}
+.hero-logo-row {
+    display       : flex;
+    align-items   : center;
+    gap           : 1rem;
     margin-bottom : 0.5rem;
 }
-[data-testid="stMetricLabel"] * { color: var(--text-muted)    !important; }
-[data-testid="stMetricValue"] * { color: var(--text-primary)  !important; }
+.hero-title {
+    font-size     : 2.4rem;
+    font-weight   : 800;
+    color         : #ffffff !important;
+    letter-spacing: -0.02em;
+    margin        : 0;
+    line-height   : 1.15;
+}
+.hero-subtitle {
+    font-size     : 1rem;
+    color         : rgba(255,255,255,0.78) !important;
+    font-weight   : 400;
+    margin-top    : 0.35rem;
+    letter-spacing: 0.01em;
+}
+.hero-badge {
+    display       : inline-block;
+    background    : rgba(255,255,255,0.15);
+    color         : #fff !important;
+    border        : 1px solid rgba(255,255,255,0.25);
+    border-radius : 20px;
+    padding       : 0.2rem 0.8rem;
+    font-size     : 0.72rem;
+    font-weight   : 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top    : 0.75rem;
+}
 
-/* ── Headings ── */
-h1, h2, h3, h4 { color: var(--text-primary) !important; }
+/* ══════════════════ Cards ══════════════════════════════════════════════════ */
+.ds-card {
+    background    : var(--gradient-card);
+    border        : 1px solid var(--border);
+    border-radius : 16px;
+    padding       : 1.5rem;
+    margin-bottom : 1rem;
+    box-shadow    : var(--shadow-card);
+    transition    : border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.ds-card:hover {
+    border-color  : var(--border-bright);
+    box-shadow    : var(--shadow-card), var(--shadow-glow);
+}
+.ds-card-title {
+    font-size     : 0.7rem;
+    font-weight   : 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color         : var(--text-muted) !important;
+    margin-bottom : 0.5rem;
+}
 
-/* ── Divider ── */
-hr { border-color: var(--border) !important; }
+/* ══════════════════ Result Card ════════════════════════════════════════════ */
+.result-card {
+    background    : var(--gradient-card);
+    border        : 1px solid var(--border);
+    border-radius : 16px;
+    padding       : 1.5rem 1.75rem;
+    margin-top    : 1.5rem;
+    box-shadow    : var(--shadow-card);
+}
+.result-card p { color: var(--text-muted); line-height: 1.75; }
+.result-card .warn-text { color: var(--danger); font-weight: 600; }
 
-/* ── Alert / info / warning boxes ── */
-[data-testid="stAlert"] { border-radius: 10px !important; }
+/* ══════════════════ Metric Boxes ═══════════════════════════════════════════ */
+[data-testid="stMetric"] {
+    background    : var(--gradient-card) !important;
+    border        : 1px solid var(--border) !important;
+    border-radius : 14px !important;
+    padding       : 1rem 1.25rem !important;
+    box-shadow    : var(--shadow-card);
+}
+[data-testid="stMetricLabel"] * {
+    font-family   : 'Inter', sans-serif !important;
+    font-size     : 0.72rem !important;
+    font-weight   : 600 !important;
+    letter-spacing: 0.1em !important;
+    text-transform: uppercase !important;
+    color         : var(--text-muted) !important;
+}
+[data-testid="stMetricValue"] * {
+    font-family   : 'Inter', sans-serif !important;
+    font-size     : 1.35rem !important;
+    font-weight   : 700 !important;
+    color         : var(--text-primary) !important;
+}
 
-/* ── Image containers ── */
-[data-testid="stImage"] img {
+/* ══════════════════ Progress Bars ══════════════════════════════════════════ */
+.stProgress > div > div > div > div {
+    background    : linear-gradient(90deg, var(--accent-1), var(--accent-2)) !important;
+    border-radius : 99px !important;
+}
+.stProgress > div > div > div {
+    background    : var(--bg-card) !important;
+    border-radius : 99px !important;
+}
+
+/* ══════════════════ File Uploader ══════════════════════════════════════════ */
+[data-testid="stFileUploader"] section {
+    border        : 2px dashed var(--border-bright) !important;
+    border-radius : 14px !important;
+    background    : var(--bg-card) !important;
+    min-height    : 90px;
+    transition    : border-color 0.2s ease, background 0.2s ease;
+}
+[data-testid="stFileUploader"] section:hover {
+    border-color  : var(--accent-2) !important;
+    background    : var(--bg-secondary) !important;
+}
+
+/* ══════════════════ Buttons ════════════════════════════════════════════════ */
+.stButton > button {
+    background    : var(--gradient-hero);
+    color         : #ffffff !important;
+    border        : none !important;
     border-radius : 10px;
+    padding       : 0.65rem 1.75rem;
+    font-family   : 'Inter', sans-serif !important;
+    font-weight   : 600;
+    font-size     : 0.9rem;
+    letter-spacing: 0.02em;
+    width         : 100%;
+    transition    : opacity 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+    touch-action  : manipulation;
+    box-shadow    : 0 2px 12px rgba(99,102,241,0.3);
+}
+.stButton > button:hover  { opacity: 0.88; box-shadow: 0 4px 20px rgba(99,102,241,0.4); }
+.stButton > button:active { transform: scale(0.97); }
+
+/* ══════════════════ Typography ═════════════════════════════════════════════ */
+h1, h2, h3, h4, h5 {
+    font-family   : 'Inter', sans-serif !important;
+    color         : var(--text-primary) !important;
+    letter-spacing: -0.01em;
+    font-weight   : 700;
+}
+code, pre, [data-testid="stCode"] * {
+    font-family   : 'JetBrains Mono', monospace !important;
+    font-size     : 0.85rem !important;
+}
+
+/* ══════════════════ Alerts ═════════════════════════════════════════════════ */
+[data-testid="stAlert"] { border-radius: 12px !important; }
+
+/* ══════════════════ Image containers ══════════════════════════════════════ */
+[data-testid="stImage"] img {
+    border-radius : 12px;
     max-width     : 100%;
     height        : auto;
+    box-shadow    : var(--shadow-card);
 }
 
-/* ── Result card ── */
-.result-card {
-    background    : var(--bg-secondary);
-    border        : 1px solid var(--border);
-    border-radius : 14px;
-    padding       : 1.25rem 1.5rem;
-    margin-top    : 1.5rem;
-}
-.result-card p {
-    color       : var(--text-muted);
-    line-height : 1.7;
-}
-.result-card .warn-text {
-    color       : var(--danger);
-    font-weight : 600;
+/* ══════════════════ Divider ════════════════════════════════════════════════ */
+hr { border-color: var(--border) !important; }
+
+/* ══════════════════ Caption / small text ═══════════════════════════════════ */
+.stCaption, small, caption {
+    font-family   : 'Inter', sans-serif !important;
+    color         : var(--text-muted) !important;
+    font-size     : 0.78rem !important;
 }
 
-/* ── Footer ── */
+/* ══════════════════ Scrollbar ══════════════════════════════════════════════ */
+::-webkit-scrollbar             { width: 5px; height: 5px; }
+::-webkit-scrollbar-track       { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb       { background: var(--scrollbar-thumb); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ══════════════════ Footer ═════════════════════════════════════════════════ */
 .footer {
     margin-top    : 3rem;
-    padding       : 1.5rem 1rem;
+    padding       : 1.75rem 1rem;
     text-align    : center;
-    background    : var(--bg-secondary);
+    background    : var(--bg-card);
     border-top    : 1px solid var(--border);
-    border-radius : 12px;
+    border-radius : 16px;
     color         : var(--text-faint);
-    font-size     : 0.82rem;
+    font-family   : 'Inter', sans-serif;
+    font-size     : 0.8rem;
     line-height   : 2;
 }
-.footer strong { color: var(--text-primary) !important; font-size: 1rem; }
-.footer .heart { color: var(--heart); }
+.footer strong { color: var(--text-primary) !important; font-size: 0.95rem; }
 .footer .tag   { color: var(--text-muted); font-style: italic; }
+.footer .dot   { color: var(--accent-2); margin: 0 0.35rem; }
 
-/* ═══════════════════════ Scrollbar ════════════════════════════════════════ */
-::-webkit-scrollbar             { width: 6px; height: 6px; }
-::-webkit-scrollbar-track       { background: var(--bg-primary); }
-::-webkit-scrollbar-thumb       { background: var(--scrollbar-thumb);
-                                   border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+/* ══════════════════ Sidebar logo strip ═════════════════════════════════════ */
+.sidebar-logo {
+    display       : flex;
+    align-items   : center;
+    gap           : 0.6rem;
+    margin-bottom : 0.25rem;
+}
+.sidebar-logo-text {
+    font-family   : 'Inter', sans-serif;
+    font-size     : 1.1rem;
+    font-weight   : 800;
+    letter-spacing: -0.02em;
+    background    : var(--gradient-hero);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
 
-/* ═══════════════════════ Mobile — ≤ 768 px ════════════════════════════════ */
+/* ══════════════════ Confidence row ═════════════════════════════════════════ */
+.conf-row {
+    display        : flex;
+    align-items    : center;
+    justify-content: space-between;
+    margin-bottom  : 0.15rem;
+    font-size      : 0.82rem;
+    font-family    : 'Inter', sans-serif;
+    color          : var(--text-secondary);
+}
+.conf-pct {
+    font-family    : 'JetBrains Mono', monospace;
+    font-size      : 0.78rem;
+    color          : var(--accent-2);
+    font-weight    : 500;
+}
+
+/* ══════════════════ Mobile — ≤ 768 px ═══════════════════════════════════════ */
 @media (max-width: 768px) {
-
-    /* Stack all Streamlit columns vertically on narrow screens */
     [data-testid="stHorizontalBlock"] {
         flex-direction : column !important;
         gap            : 0.5rem;
@@ -216,41 +383,26 @@ hr { border-color: var(--border) !important; }
         flex      : 1 1 100% !important;
         min-width : 0 !important;
     }
-
-    /* Responsive font sizes */
-    h1 { font-size: 1.55rem !important; }
-    h2 { font-size: 1.25rem !important; }
-    h3 { font-size: 1.05rem !important; }
-    h4 { font-size: 0.95rem !important; }
-
-    /* Tighten padding on small screens */
+    .hero-title    { font-size: 1.6rem  !important; }
+    .hero-subtitle { font-size: 0.88rem !important; }
     .block-container {
         padding-left  : 0.75rem !important;
         padding-right : 0.75rem !important;
-        padding-top   : 0.75rem !important;
     }
-
-    /* Larger touch target for file uploader */
-    [data-testid="stFileUploader"] section {
-        min-height : 110px;
-    }
-
-    /* Metric cards — full width stacking */
-    [data-testid="stMetric"] { width: 100%; }
-
-    /* Footer smaller text on phones */
-    .footer { font-size: 0.72rem; padding: 1rem 0.75rem; }
+    [data-testid="stFileUploader"] section { min-height: 110px; }
+    .footer { font-size: 0.72rem; padding: 1rem; }
 }
 
-/* ═══════════════════════ Mobile — ≤ 480 px ════════════════════════════════ */
+/* ══════════════════ Mobile — ≤ 480 px ═══════════════════════════════════════ */
 @media (max-width: 480px) {
-    h1 { font-size: 1.3rem !important; }
+    .hero-banner  { padding: 1.5rem 1.25rem; }
+    .hero-title   { font-size: 1.35rem !important; }
     .block-container {
         padding-left  : 0.5rem !important;
         padding-right : 0.5rem !important;
     }
-    [data-testid="stFileUploader"] section { min-height: 90px; }
-    .result-card { padding: 1rem; }
+    .result-card    { padding: 1rem; }
+    .ds-card        { padding: 1rem; }
 }
 </style>
 """
@@ -549,34 +701,95 @@ def predict(model: nn.Module, pil_image: Image.Image):
 #  Sidebar
 # ═══════════════════════════════════════════════════════════════════════════════
 
+# ── Inline SVG Logo ───────────────────────────────────────────────────────
+_LOGO_SVG = """
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="42" height="42">
+  <defs>
+    <linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+  </defs>
+  <!-- Outer circle -->
+  <circle cx="24" cy="24" r="23" fill="url(#lg)" opacity="0.15" stroke="url(#lg)" stroke-width="1.5"/>
+  <!-- Microscope body -->
+  <rect x="20" y="8" width="8" height="14" rx="2" fill="url(#lg)"/>
+  <!-- Lens -->
+  <ellipse cx="24" cy="23" rx="6" ry="4" fill="none" stroke="url(#lg)" stroke-width="2"/>
+  <!-- Stand arm -->
+  <path d="M24 27 L24 34" stroke="url(#lg)" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Base -->
+  <path d="M14 38 Q24 34 34 38" stroke="url(#lg)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <!-- Scan lines (AI indicator) -->
+  <line x1="30" y1="18" x2="36" y2="18" stroke="#06b6d4" stroke-width="1.5" stroke-linecap="round" opacity="0.8"/>
+  <line x1="30" y1="22" x2="38" y2="22" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+  <line x1="30" y1="26" x2="35" y2="26" stroke="#06b6d4" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+</svg>
+"""
+
+
 def render_sidebar():
-    """Renders the informational sidebar: project info, usage guide, class legend."""
+    """Renders the informational sidebar: logo, project info, usage guide, class legend."""
     with st.sidebar:
-        st.markdown("## 🔬 DermaScan AI")
+        # Logo + brand name
         st.markdown(
-            "**Model:** ResNet18 (ImageNet → HAM10000)  \n"
-            "**XAI:** Grad-CAM  \n"
-            "**Dataset:** 10,015 dermoscopy images  \n"
+            f"""
+            <div class="sidebar-logo">
+                {_LOGO_SVG}
+                <span class="sidebar-logo-text">DermaScan AI</span>
+            </div>
+            <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:0.75rem;
+                        font-family:'Inter',sans-serif; letter-spacing:0.04em;">
+                AI-Powered Skin Cancer Detection
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        st.divider()
+
+        st.markdown(
+            "<p style='font-size:0.7rem;font-weight:700;letter-spacing:0.12em;"
+            "text-transform:uppercase;color:var(--text-muted);font-family:Inter,sans-serif;'"
+            ">Model Info</p>",
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            "**Architecture:** ResNet18  \n"
+            "**Training:** HAM10000 dataset  \n"
+            "**XAI:** Grad-CAM (Selvaraju 2017)  \n"
+            "**Images:** 10,015 dermoscopy scans  \n"
             "**Classes:** 7 diagnostic categories"
         )
         st.divider()
 
-        st.markdown("### 📋 How to Use")
         st.markdown(
-            "**1️⃣** Upload a dermoscopy or clinical skin image  \n"
-            "**2️⃣** AI validates ≥ 15% skin-tone pixel content  \n"
-            "**3️⃣** View diagnosis + confidence scores  \n"
-            "**4️⃣** Explore the Grad-CAM heatmap for transparency"
+            "<p style='font-size:0.7rem;font-weight:700;letter-spacing:0.12em;"
+            "text-transform:uppercase;color:var(--text-muted);font-family:Inter,sans-serif;'"
+            ">How to Use</p>",
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            "**1 ·** Upload a dermoscopy or skin image  \n"
+            "**2 ·** AI validates ≥ 15% skin-tone pixels  \n"
+            "**3 ·** View diagnosis + confidence scores  \n"
+            "**4 ·** Explore Grad-CAM heatmap"
         )
         st.divider()
 
-        st.markdown("### 🏷️ Class Reference")
+        st.markdown(
+            "<p style='font-size:0.7rem;font-weight:700;letter-spacing:0.12em;"
+            "text-transform:uppercase;color:var(--text-muted);font-family:Inter,sans-serif;'"
+            ">Class Reference</p>",
+            unsafe_allow_html=True,
+        )
         for info in CLASS_INFO.values():
-            st.markdown(f"{info['icon']} **{info['abbr']}** — {info['name']}")
+            st.markdown(
+                f"<span style='font-size:0.83rem;font-family:Inter,sans-serif;'>"
+                f"{info['icon']} <b>{info['abbr']}</b> &nbsp;—&nbsp; {info['name']}</span>",
+                unsafe_allow_html=True,
+            )
         st.divider()
-
-        st.markdown("### Risk Legend")
-        st.markdown("🟢 Benign &nbsp;•&nbsp; 🟡 Pre-cancerous &nbsp;•&nbsp; 🔴 Malignant")
+        st.markdown("🟢 Benign &nbsp;·&nbsp; 🟡 Pre-cancerous &nbsp;·&nbsp; 🔴 Malignant")
         st.divider()
         st.caption("DermaScan AI v1.0.0 · 2025–26")
 
@@ -594,11 +807,15 @@ _DISCLAIMER = (
 
 _FOOTER = """
 <div class="footer">
-    <strong>DermaScan AI</strong><br>
-    <span class="tag">AI-Powered Skin Lesion Analysis · HAM10000 · ResNet18 + Grad-CAM</span><br>
-    <span style="font-size:0.78rem; color:var(--text-faint);">
-        3rd Year Engineering Project &nbsp;·&nbsp; B.E. Computer Engineering
-        &nbsp;·&nbsp; Academic Year 2025–26
+    <strong>DermaScan AI</strong>
+    <span class="dot">◆</span>
+    <span class="tag">HAM10000 · ResNet18 · Grad-CAM XAI</span><br>
+    <span style="font-size:0.76rem; font-family:'Inter',sans-serif;">
+        3rd Year Engineering Project
+        <span class="dot">·</span>
+        B.E. Computer Engineering
+        <span class="dot">·</span>
+        Academic Year 2025–26
     </span>
 </div>
 """
@@ -624,9 +841,25 @@ def main():
     st.markdown(_CSS, unsafe_allow_html=True)
     render_sidebar()
 
-    # ── Header ──────────────────────────────────────────────────────────────
-    st.markdown("# 🔬 DermaScan AI")
-    st.markdown("#### AI-Powered Skin Cancer Detection · ResNet18 + Grad-CAM Explainability")
+    # ── Hero Banner ──────────────────────────────────────────────────────────
+    st.markdown(
+        f"""
+        <div class="hero-banner">
+            <div class="hero-logo-row">
+                {_LOGO_SVG}
+                <div>
+                    <div class="hero-title">DermaScan AI</div>
+                </div>
+            </div>
+            <div class="hero-subtitle">
+                AI-Powered Skin Cancer Detection &nbsp;·&nbsp;
+                ResNet18 + Grad-CAM Explainability
+            </div>
+            <div class="hero-badge">HAM10000 · 7 Classes · FP16 Model</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     st.warning(_DISCLAIMER)
     st.divider()
 
@@ -663,11 +896,17 @@ def main():
     col_img, col_val = st.columns([1, 1], gap="large")
 
     with col_img:
-        st.markdown("#### Uploaded Image")
+        st.markdown(
+            "<div class='ds-card-title' style='font-family:Inter,sans-serif;'>Uploaded Image</div>",
+            unsafe_allow_html=True,
+        )
         st.image(pil_image, use_container_width=True)
 
     with col_val:
-        st.markdown("#### 🛡️ Image Validation")
+        st.markdown(
+            "<div class='ds-card-title' style='font-family:Inter,sans-serif;'>🛡️ Image Validation</div>",
+            unsafe_allow_html=True,
+        )
         with st.spinner("Checking skin-pixel content…"):
             skin_ok = is_skin_image(pil_image)
 
@@ -696,24 +935,38 @@ def main():
 
     # ── Top-level Metrics ────────────────────────────────────────────────────
     m1, m2, m3 = st.columns(3)
-    m1.metric("🏷️ Predicted Class", info["name"])
-    m2.metric("📊 Confidence",       f"{probs[pred_idx] * 100:.1f}%")
-    m3.metric("⚠️ Risk Level",       f"{info['icon']} {info['risk']}")
+    m1.metric("Predicted Class", info["name"])
+    m2.metric("Confidence",      f"{probs[pred_idx] * 100:.1f}%")
+    m3.metric("Risk Level",      f"{info['icon']} {info['risk']}")
     st.divider()
 
     # ── Confidence Scores + Grad-CAM ─────────────────────────────────────────
     col_scores, col_cam = st.columns([1, 1], gap="large")
 
     with col_scores:
-        st.markdown("#### 📊 Confidence Scores — All 7 Classes")
+        st.markdown(
+            "<div class='ds-card-title' style='font-family:Inter,sans-serif;'"
+            ">📊 Confidence Scores — All 7 Classes</div>",
+            unsafe_allow_html=True,
+        )
         for idx in np.argsort(probs)[::-1]:
             c   = CLASS_INFO[idx]
             pct = probs[idx] * 100
-            st.markdown(f"{c['icon']} **{c['abbr']}** — {c['name']}: `{pct:.1f}%`")
+            st.markdown(
+                f"<div class='conf-row'>"
+                f"<span>{c['icon']} <b>{c['abbr']}</b> &nbsp;—&nbsp; {c['name']}</span>"
+                f"<span class='conf-pct'>{pct:.1f}%</span>"
+                f"</div>",
+                unsafe_allow_html=True,
+            )
             st.progress(float(probs[idx]))
 
     with col_cam:
-        st.markdown("#### 🌡️ Grad-CAM Explainability Heatmap")
+        st.markdown(
+            "<div class='ds-card-title' style='font-family:Inter,sans-serif;'"
+            ">🌡️ Grad-CAM Explainability Heatmap</div>",
+            unsafe_allow_html=True,
+        )
         st.image(cam_image, use_container_width=True)
         st.caption(
             "**Red / yellow** = regions the model focused on most.  \n"
