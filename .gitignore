@@ -22,3 +22,11 @@ Thumbs.db
 
 # Jupyter
 .ipynb_checkpoints/
+
+# Next.js
+frontend/.next/
+frontend/node_modules/
+frontend/.vercel/
+
+# Model weights (stored via Git LFS or manually uploaded — too large for regular push)
+backend/model_final.pth
