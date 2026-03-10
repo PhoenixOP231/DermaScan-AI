@@ -190,7 +190,7 @@ export default function Home() {
 
   // ── render ────────────────────────────────────────────────────────────────
   return (
-    <div className="relative z-10 min-h-dvh flex flex-col">
+    <div className="relative z-10 min-h-screen flex flex-col">
       {/* ══════════ Header ══════════ */}
       <header className="border-b border-white/[0.06] bg-[#020817]/80 backdrop-blur-xl sticky top-0 z-50">
         <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
