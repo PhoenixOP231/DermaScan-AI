@@ -1,0 +1,12 @@
+# nixpacks.toml — Railway build config for DermaScan AI backend
+# Forces CPU-only PyTorch to stay well under the 4 GB image limit.
+# CUDA torch (~7 GB) is unnecessary for inference on Railway's CPU instances.
+
+[phases.install]
+cmds = [
+  "pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu",
+  "pip install --no-cache-dir fastapi 'uvicorn[standard]' python-multipart opencv-python-headless pillow numpy matplotlib"
+]
+
+[start]
+cmd = "uvicorn main:app --host 0.0.0.0 --port $PORT"
