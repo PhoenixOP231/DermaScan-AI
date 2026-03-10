@@ -2,6 +2,11 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# Install git + git-lfs so Railway can resolve LFS pointers for model_final.pth
+RUN apt-get update && apt-get install -y --no-install-recommends git git-lfs \
+    && git lfs install \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install CPU-only PyTorch first — ~250 MB vs ~7 GB for CUDA build
 RUN pip install --no-cache-dir \
     torch torchvision \
@@ -19,6 +24,21 @@ RUN pip install --no-cache-dir \
 
 # Copy application code (model_final.pth is tracked via Git LFS)
 COPY . .
+
+# If model_final.pth is still an LFS pointer, pull the real file
+RUN if [ "$(wc -c < model_final.pth)" -lt 1000 ]; then \
+      git lfs pull --include="model_final.pth"; \
+    fi
+
+# Confirm model file is present and large enough to be valid
+RUN python -c "
+import os, sys
+size = os.path.getsize('model_final.pth')
+print(f'model_final.pth size: {size} bytes')
+if size < 1_000_000:
+    sys.exit('ERROR: model_final.pth looks like an LFS pointer, not the real file!')
+print('Model file OK.')
+"
 
 EXPOSE 8080
 
