@@ -32,8 +32,8 @@ const RISK_STYLE: Record<string, string> = {
   "Pre-cancerous":"text-amber-400   bg-amber-400/10   border-amber-400/30",
 };
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+// Requests go through the Next.js API proxy (/app/api/analyze/route.ts)
+// which forwards server-side to RAILWAY_API_URL / NEXT_PUBLIC_API_URL.
 
 // ─── Subcomponents ────────────────────────────────────────────────────────────
 
@@ -159,7 +159,7 @@ export default function Home() {
       const form = new FormData();
       form.append("file", file);
 
-      const res = await fetch(`${API_URL}/analyze`, {
+      const res = await fetch("/api/analyze", {
         method: "POST",
         body:   form,
       });
