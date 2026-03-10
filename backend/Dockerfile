@@ -31,14 +31,7 @@ RUN if [ "$(wc -c < model_final.pth)" -lt 1000 ]; then \
     fi
 
 # Confirm model file is present and large enough to be valid
-RUN python -c "
-import os, sys
-size = os.path.getsize('model_final.pth')
-print(f'model_final.pth size: {size} bytes')
-if size < 1_000_000:
-    sys.exit('ERROR: model_final.pth looks like an LFS pointer, not the real file!')
-print('Model file OK.')
-"
+RUN python -c "import os,sys; s=os.path.getsize('model_final.pth'); print('model_final.pth size:',s,'bytes'); sys.exit('ERROR: model_final.pth is an LFS pointer not real file') if s<1000000 else print('Model file OK')"
 
 EXPOSE 8080
 
