@@ -25,4 +25,4 @@ RUN python -c "import os,sys; s=os.path.getsize('model_final.pth'); print('model
 
 EXPOSE 8080
 
-CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}"]
