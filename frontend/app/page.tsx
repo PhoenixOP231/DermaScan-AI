@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -10,6 +10,11 @@ interface AnalyzeResponse {
   risk_level:      string;
   confidences:     Record<string, number>;
   grad_cam_base64: string;
+}
+
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -193,7 +198,50 @@ export default function Home() {
   const [dragging,  setDragging]  = useState(false);
   const [activeNav, setActiveNav] = useState("Analysis");
 
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef  = useRef<HTMLInputElement>(null);
+
+  // ── Chat state ──────────────────────────────────────────────────────────────
+  const [chatOpen,     setChatOpen]     = useState(false);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
+    { role: "assistant", content: "Hi! I'm your DermaScan AI assistant. Ask me anything about skin lesions, the model, or your analysis results!" },
+  ]);
+  const [chatInput,    setChatInput]    = useState("");
+  const [chatLoading,  setChatLoading]  = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (chatOpen) chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatMessages, chatOpen]);
+
+  const sendChat = async () => {
+    const trimmed = chatInput.trim();
+    if (!trimmed || chatLoading) return;
+    const userMsg: ChatMessage = { role: "user", content: trimmed };
+    const newMessages = [...chatMessages, userMsg];
+    setChatMessages(newMessages);
+    setChatInput("");
+    setChatLoading(true);
+    try {
+      const res  = await fetch("/api/chat", {
+        method : "POST",
+        headers: { "Content-Type": "application/json" },
+        body   : JSON.stringify({ messages: newMessages }),
+      });
+      const data = await res.json();
+      setChatMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: data.reply ?? data.error ?? "Sorry, something went wrong." },
+      ]);
+    } catch {
+      setChatMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: "Connection error. Please try again." },
+      ]);
+    } finally {
+      setChatLoading(false);
+    }
+  };
+  // ────────────────────────────────────────────────────────────────────────────
 
   const handleFile = useCallback((f: File) => {
     if (!f.type.startsWith("image/")) {
@@ -793,14 +841,14 @@ export default function Home() {
 
         {/* Footer */}
         <footer
-          className="shrink-0 px-6 py-3 hidden lg:flex items-center justify-between"
+          className="shrink-0 px-6 py-3 hidden lg:flex flex-col items-center gap-1"
           style={{ borderTop: "1px solid var(--border)", background: "var(--bg-surface)" }}
         >
           <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-            DermaScan AI
+            DermaScan AI · HAM10000 · ResNet18 · Grad-CAM
           </p>
-          <p className="text-xs hidden sm:block" style={{ color: "var(--text-muted)" }}>
-            HAM10000 · ResNet18 · Grad-CAM
+          <p className="text-xs text-center" style={{ color: "var(--text-muted)" }}>
+            Built by — Ammar Gazi · Gauri Jagtap · Madhuri Shinde · Parth Shinde
           </p>
         </footer>
 
@@ -842,6 +890,139 @@ export default function Home() {
         </nav>
 
       </div>
+
+      {/* ══════════════════════════ CHAT WIDGET ════════════════════════════ */}
+      {/* Floating chat button */}
+      <button
+        onClick={() => setChatOpen((v) => !v)}
+        className="fixed z-50 bottom-20 right-5 lg:bottom-6 lg:right-6 h-12 w-12 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95"
+        style={{ background: "#2563eb", border: "none", cursor: "pointer", boxShadow: "0 4px 20px rgba(37,99,235,0.45)" }}
+        aria-label="Toggle AI chat assistant"
+      >
+        {chatOpen ? (
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2.5} strokeLinecap="round">
+            <path d="M6 18 18 6M6 6l12 12" />
+          </svg>
+        ) : (
+          <svg className="h-5 w-5 fill-white" viewBox="0 0 24 24">
+            <path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2Z" />
+          </svg>
+        )}
+      </button>
+
+      {/* Chat panel */}
+      {chatOpen && (
+        <div
+          className="fixed z-50 bottom-36 right-5 lg:bottom-20 lg:right-6 flex flex-col rounded-2xl overflow-hidden"
+          style={{
+            width     : "min(360px, calc(100vw - 2.5rem))",
+            height    : "min(480px, calc(100vh - 220px))",
+            background: "var(--bg-surface)",
+            border    : "1px solid var(--border)",
+            boxShadow : "0 8px 32px rgba(15,25,35,0.18)",
+          }}
+        >
+          {/* Header */}
+          <div className="flex items-center gap-3 px-4 py-3 shrink-0" style={{ background: "#2563eb" }}>
+            <div
+              className="h-8 w-8 rounded-full flex items-center justify-center shrink-0"
+              style={{ background: "rgba(255,255,255,0.2)" }}
+            >
+              <svg viewBox="0 0 24 24" className="h-4 w-4 fill-white">
+                <path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2Z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm font-bold text-white leading-none">DermaScan Assistant</p>
+              <p className="text-[10px] mt-0.5" style={{ color: "#bfdbfe" }}>Powered by Gemini AI</p>
+            </div>
+            <button
+              onClick={() => setChatOpen(false)}
+              className="ml-auto flex items-center justify-center h-7 w-7 rounded-full"
+              style={{ background: "rgba(255,255,255,0.15)", border: "none", cursor: "pointer" }}
+              aria-label="Close chat"
+            >
+              <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" stroke="white" strokeWidth={2.5} fill="none" strokeLinecap="round">
+                <path d="M6 18 18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-3">
+            {chatMessages.map((msg, i) => (
+              <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                <div
+                  className="max-w-[82%] rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed"
+                  style={
+                    msg.role === "user"
+                      ? { background: "#2563eb", color: "#fff", borderBottomRightRadius: "4px" }
+                      : { background: "var(--bg-canvas)", color: "var(--text-secondary)", border: "1px solid var(--border)", borderBottomLeftRadius: "4px" }
+                  }
+                >
+                  {msg.content}
+                </div>
+              </div>
+            ))}
+            {chatLoading && (
+              <div className="flex justify-start">
+                <div
+                  className="rounded-2xl px-3.5 py-2.5"
+                  style={{ background: "var(--bg-canvas)", border: "1px solid var(--border)", borderBottomLeftRadius: "4px" }}
+                >
+                  <span className="flex gap-1 items-center">
+                    <span className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <span className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <span className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: "300ms" }} />
+                  </span>
+                </div>
+              </div>
+            )}
+            <div ref={chatEndRef} />
+          </div>
+
+          {/* Input */}
+          <div
+            className="shrink-0 flex items-center gap-2 px-3 py-2.5"
+            style={{ borderTop: "1px solid var(--border)", background: "var(--bg-surface)" }}
+          >
+            <input
+              type="text"
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && sendChat()}
+              placeholder="Ask about your results…"
+              className="flex-1 rounded-xl px-3 py-2 text-xs outline-none"
+              style={{ background: "var(--bg-canvas)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
+            />
+            <button
+              onClick={sendChat}
+              disabled={!chatInput.trim() || chatLoading}
+              className="h-8 w-8 rounded-xl flex items-center justify-center shrink-0 transition-all duration-150 active:scale-95"
+              style={{
+                background: chatInput.trim() && !chatLoading ? "#2563eb" : "var(--bg-canvas)",
+                border    : "1px solid var(--border)",
+                cursor    : chatInput.trim() && !chatLoading ? "pointer" : "not-allowed",
+              }}
+              aria-label="Send message"
+            >
+              <svg
+                className="h-3.5 w-3.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke={chatInput.trim() && !chatLoading ? "#fff" : "var(--text-muted)"}
+                strokeWidth={2.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+      {/* ═══════════════════════════════════════════════════════════════════ */}
+
     </div>
   );
 }
