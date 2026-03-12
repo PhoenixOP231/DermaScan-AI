@@ -7,9 +7,6 @@
   "functions": {
     "api/analyze.py": {
       "maxDuration": 30
-    },
-    "api/chat.py": {
-      "maxDuration": 30
     }
   },
 
@@ -23,11 +20,6 @@
       "src": "/api/health",
       "dest": "/api/analyze.py",
       "methods": ["GET"]
-    },
-    {
-      "src": "/api/chat",
-      "dest": "/api/chat.py",
-      "methods": ["POST", "OPTIONS"]
     }
   ]
 }
