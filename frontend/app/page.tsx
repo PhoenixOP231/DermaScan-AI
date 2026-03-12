@@ -318,46 +318,44 @@ export default function Home() {
 
         {/* Top bar */}
         <header
-          className="shrink-0 flex items-center justify-between px-6 py-3.5"
+          className="shrink-0 flex items-center justify-between px-4 lg:px-6 py-3.5"
           style={{ background: "var(--bg-surface)", borderBottom: "1px solid var(--border)" }}
         >
-          <div>
-            <h1 className="text-base font-bold" style={{ color: "var(--text-primary)" }}>
-              {activeNav === "Analysis" ? "Lesion Analysis" : activeNav}
-            </h1>
-            <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-              {activeNav === "Analysis"
-                ? "Upload a dermoscopy image for AI-powered classification"
-                : activeNav === "Model Info"
-                ? "Architecture, training details and performance metrics"
-                : "About this project and the research team"}
-            </p>
-          </div>
-
-          {/* Mobile logo */}
-          <div className="flex lg:hidden items-center gap-2">
+          <div className="flex items-center gap-3">
+            {/* Mobile logo mark */}
             <div
-              className="h-7 w-7 rounded-lg flex items-center justify-center"
+              className="h-7 w-7 rounded-lg flex items-center justify-center shrink-0 lg:hidden"
               style={{ background: "#2563eb" }}
             >
               <svg viewBox="0 0 24 24" className="h-4 w-4 fill-white">
                 <path d="M9.5 2a.5.5 0 0 1 .5.5v1h4v-1a.5.5 0 0 1 1 0v1h1a2 2 0 0 1 2 2v1H6V5.5a2 2 0 0 1 2-2h1v-1a.5.5 0 0 1 .5-.5ZM4 8h16v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Zm8 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm0 1.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Z" />
               </svg>
             </div>
-            <span className="font-bold text-sm" style={{ color: "var(--text-primary)" }}>DermaScan AI</span>
+            <div>
+              <h1 className="text-base font-bold" style={{ color: "var(--text-primary)" }}>
+                {activeNav === "Analysis" ? "Lesion Analysis" : activeNav}
+              </h1>
+              <p className="text-xs hidden sm:block" style={{ color: "var(--text-muted)" }}>
+                {activeNav === "Analysis"
+                  ? "Upload a dermoscopy image for AI-powered classification"
+                  : activeNav === "Model Info"
+                  ? "Architecture, training details and performance metrics"
+                  : "About this project and the research team"}
+              </p>
+            </div>
           </div>
 
           <span
-            className="hidden sm:inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
+            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium"
             style={{ background: "#f0fdf4", color: "#16a34a", border: "1px solid #bbf7d0" }}
           >
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Model Online
+            <span className="hidden sm:inline">Model </span>Online
           </span>
         </header>
 
-        {/* Scrollable content */}
-        <main className="flex-1 overflow-y-auto p-5 lg:p-6">
+        {/* Scrollable content — extra bottom padding on mobile for the tab bar */}
+        <main className="flex-1 overflow-y-auto p-5 pb-24 lg:pb-6 lg:p-6">
           <div className="max-w-5xl mx-auto flex flex-col gap-5">
 
             {/* ── Model Info page ── */}
@@ -795,7 +793,7 @@ export default function Home() {
 
         {/* Footer */}
         <footer
-          className="shrink-0 px-6 py-3 flex items-center justify-between"
+          className="shrink-0 px-6 py-3 hidden lg:flex items-center justify-between"
           style={{ borderTop: "1px solid var(--border)", background: "var(--bg-surface)" }}
         >
           <p className="text-xs" style={{ color: "var(--text-muted)" }}>
@@ -805,6 +803,43 @@ export default function Home() {
             HAM10000 · ResNet18 · Grad-CAM
           </p>
         </footer>
+
+        {/* ══════════════ MOBILE BOTTOM TAB BAR (hidden on lg+) ══════════════ */}
+        <nav
+          className="lg:hidden fixed bottom-0 left-0 right-0 z-40 flex"
+          style={{
+            background  : "var(--bg-surface)",
+            borderTop   : "1px solid var(--border)",
+            boxShadow   : "0 -2px 12px rgba(15,25,35,0.08)",
+            paddingBottom: "env(safe-area-inset-bottom, 0px)",
+          }}
+        >
+          {NAV.map((item) => {
+            const active = activeNav === item.label;
+            return (
+              <button
+                key={item.label}
+                onClick={() => setActiveNav(item.label)}
+                className="relative flex-1 flex flex-col items-center justify-center gap-1 py-2.5 transition-colors duration-150"
+                style={{ color: active ? "#2563eb" : "var(--text-muted)", background: "none", border: "none", cursor: "pointer" }}
+              >
+                <span
+                  className="flex items-center justify-center h-6 w-6 rounded-lg transition-colors duration-150"
+                  style={{ background: active ? "#eff6ff" : "transparent" }}
+                >
+                  {item.icon}
+                </span>
+                <span className="text-[10px] font-semibold">{item.label}</span>
+                {active && (
+                  <span
+                    className="absolute bottom-0 h-0.5 w-10 rounded-full"
+                    style={{ background: "#2563eb" }}
+                  />
+                )}
+              </button>
+            );
+          })}
+        </nav>
 
       </div>
     </div>
