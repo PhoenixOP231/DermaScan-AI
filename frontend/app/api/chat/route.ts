@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 
-interface GeminiMessage {
-  role: "user" | "model";
-  parts: { text: string }[];
-}
-
 const SYSTEM_PROMPT = `You are DermaScan AI Assistant, a knowledgeable and friendly assistant for the DermaScan AI platform — an AI-powered skin lesion classifier.
 
 The platform uses a ResNet18 model trained on the HAM10000 dataset to classify dermoscopy images into 7 categories:
@@ -31,46 +26,48 @@ export async function POST(req: NextRequest) {
   try {
     const { messages } = await req.json();
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
-        { error: "Gemini API key is not configured on the server." },
+        { error: "API key is not configured on the server." },
         { status: 500 }
       );
     }
 
-    const geminiMessages: GeminiMessage[] = messages.map(
-      (m: { role: string; content: string }) => ({
-        role   : m.role === "assistant" ? "model" : "user",
-        parts  : [{ text: m.content }],
-      })
-    );
-
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      "https://api.groq.com/openai/v1/chat/completions",
       {
         method : "POST",
-        headers: { "Content-Type": "application/json" },
-        body   : JSON.stringify({
-          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-          contents          : geminiMessages,
-          generationConfig  : {
-            maxOutputTokens: 512,
-            temperature    : 0.7,
-          },
+        headers: {
+          "Content-Type" : "application/json",
+          "Authorization": `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model      : "llama-3.1-8b-instant",
+          messages   : [
+            { role: "system", content: SYSTEM_PROMPT },
+            ...messages.map((m: { role: string; content: string }) => ({
+              role   : m.role === "assistant" ? "assistant" : "user",
+              content: m.content,
+            })),
+          ],
+          max_tokens : 512,
+          temperature: 0.7,
         }),
       }
     );
 
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
-      const msg = (err as { error?: { message?: string } }).error?.message ?? `Gemini API error ${response.status}`;
+      const msg =
+        (err as { error?: { message?: string } }).error?.message ??
+        `Groq API error ${response.status}`;
       return NextResponse.json({ error: msg }, { status: 502 });
     }
 
     const data = await response.json();
     const reply: string =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text ??
+      data?.choices?.[0]?.message?.content ??
       "Sorry, I couldn't generate a response. Please try again.";
 
     return NextResponse.json({ reply });

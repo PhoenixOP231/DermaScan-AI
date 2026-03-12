@@ -934,7 +934,7 @@ export default function Home() {
             </div>
             <div>
               <p className="text-sm font-bold text-white leading-none">DermaScan Assistant</p>
-              <p className="text-[10px] mt-0.5" style={{ color: "#bfdbfe" }}>Powered by Gemini AI</p>
+              <p className="text-[10px] mt-0.5" style={{ color: "#bfdbfe" }}>Powered by Groq · Llama 3.1</p>
             </div>
             <button
               onClick={() => setChatOpen(false)}
