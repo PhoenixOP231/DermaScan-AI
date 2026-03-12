@@ -43,6 +43,7 @@ _CSS = """<style>
 
 /* ─── Design tokens ──────────────────────────────────────────────────────── */
 :root {
+    color-scheme  : light;          /* prevents OS dark-mode from tinting native elements */
     --bg-app      : #f0f4f8;
     --bg-card     : #ffffff;
     --border      : #e2e8f0;
@@ -66,6 +67,42 @@ _CSS = """<style>
     --r-sm        : 8px;
     --r-md        : 12px;
     --r-lg        : 16px;
+}
+
+/* ─── Force light theme even when OS/browser is in dark mode ─────────────── */
+@media (prefers-color-scheme: dark) {
+    :root {
+        color-scheme  : light;
+        --bg-app      : #f0f4f8;
+        --bg-card     : #ffffff;
+        --border      : #e2e8f0;
+        --border-hi   : #93c5fd;
+        --text-primary: #0f172a;
+        --text-second : #334155;
+        --text-muted  : #64748b;
+        --text-faint  : #94a3b8;
+        --accent      : #2563eb;
+        --accent-dark : #1d4ed8;
+        --accent-light: #eff6ff;
+        --success     : #16a34a;
+        --success-bg  : #f0fdf4;
+        --warning     : #92400e;
+        --warning-bg  : #fffbeb;
+        --warning-bdr : #fde68a;
+        --danger      : #dc2626;
+        --danger-bg   : #fef2f2;
+        --shadow-sm   : 0 1px 3px rgba(15,23,42,0.07), 0 1px 2px rgba(15,23,42,0.04);
+        --shadow-md   : 0 4px 14px rgba(15,23,42,0.08);
+    }
+    html, body, [data-testid="stAppViewContainer"], .stApp {
+        background : #f0f4f8 !important;
+        color      : #334155 !important;
+    }
+    [data-testid="stSidebar"]   { background: #ffffff !important; }
+    [data-testid="stHeader"]    { background: #f0f4f8 !important; }
+    [data-testid="stMetric"]    { background: #ffffff !important; border-color: #e2e8f0 !important; }
+    .stProgress > div > div > div { background: #e2e8f0 !important; }
+    [data-testid="stFileUploader"] section { background: #eff6ff !important; }
 }
 
 /* ─── Base ───────────────────────────────────────────────────────────────── */
