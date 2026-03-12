@@ -41,68 +41,104 @@ st.set_page_config(
 _CSS = """<style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-/* ─── Design tokens ──────────────────────────────────────────────────────── */
+/* ─── Light mode design tokens (default) ────────────────────────────────── */
 :root {
-    color-scheme  : light;          /* prevents OS dark-mode from tinting native elements */
-    --bg-app      : #f0f4f8;
-    --bg-card     : #ffffff;
-    --border      : #e2e8f0;
-    --border-hi   : #93c5fd;
-    --text-primary: #0f172a;
-    --text-second : #334155;
-    --text-muted  : #64748b;
-    --text-faint  : #94a3b8;
-    --accent      : #2563eb;
-    --accent-dark : #1d4ed8;
-    --accent-light: #eff6ff;
-    --success     : #16a34a;
-    --success-bg  : #f0fdf4;
-    --warning     : #92400e;
-    --warning-bg  : #fffbeb;
-    --warning-bdr : #fde68a;
-    --danger      : #dc2626;
-    --danger-bg   : #fef2f2;
-    --shadow-sm   : 0 1px 3px rgba(15,23,42,0.07), 0 1px 2px rgba(15,23,42,0.04);
-    --shadow-md   : 0 4px 14px rgba(15,23,42,0.08);
-    --r-sm        : 8px;
-    --r-md        : 12px;
-    --r-lg        : 16px;
+    color-scheme    : light dark;
+    --bg-app        : #f0f4f8;
+    --bg-card       : #ffffff;
+    --border        : #e2e8f0;
+    --border-hi     : #93c5fd;
+    --text-primary  : #0f172a;
+    --text-second   : #334155;
+    --text-muted    : #64748b;
+    --text-faint    : #94a3b8;
+    --accent        : #2563eb;
+    --accent-dark   : #1d4ed8;
+    --accent-light  : #eff6ff;
+    --accent-hover  : #dbeafe;
+    --success       : #16a34a;
+    --success-bg    : #f0fdf4;
+    --success-bdr   : #bbf7d0;
+    --warning       : #92400e;
+    --warning-bg    : #fffbeb;
+    --warning-bdr   : #fde68a;
+    --warning-lbdr  : #f59e0b;
+    --warn-text-2   : #b45309;
+    --danger        : #dc2626;
+    --danger-bg     : #fef2f2;
+    --danger-bdr    : #fecaca;
+    --accent-bdr    : #bfdbfe;
+    --shadow-sm     : 0 1px 3px rgba(15,23,42,0.07), 0 1px 2px rgba(15,23,42,0.04);
+    --shadow-md     : 0 4px 14px rgba(15,23,42,0.08);
+    --r-sm          : 8px;
+    --r-md          : 12px;
+    --r-lg          : 16px;
+    --progress-track: #e2e8f0;
 }
 
-/* ─── Force light theme even when OS/browser is in dark mode ─────────────── */
+/* ─── Dark mode tokens — Streamlit sets data-theme on .stApp ─────────────── */
+.stApp[data-theme="dark"] {
+    --bg-app        : #0d1117;
+    --bg-card       : #161b22;
+    --border        : #30363d;
+    --border-hi     : #388bfd;
+    --text-primary  : #e6edf3;
+    --text-second   : #b2bfc8;
+    --text-muted    : #8b949e;
+    --text-faint    : #484f58;
+    --accent        : #3b82f6;
+    --accent-dark   : #60a5fa;
+    --accent-light  : rgba(59,130,246,0.14);
+    --accent-hover  : rgba(59,130,246,0.22);
+    --success       : #3fb950;
+    --success-bg    : rgba(63,185,80,0.12);
+    --success-bdr   : rgba(63,185,80,0.35);
+    --warning       : #e3b341;
+    --warning-bg    : rgba(187,128,9,0.12);
+    --warning-bdr   : rgba(187,128,9,0.4);
+    --warning-lbdr  : rgba(187,128,9,0.7);
+    --warn-text-2   : #e3b341;
+    --danger        : #f85149;
+    --danger-bg     : rgba(248,81,73,0.12);
+    --danger-bdr    : rgba(248,81,73,0.35);
+    --accent-bdr    : rgba(59,130,246,0.45);
+    --shadow-sm     : 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+    --shadow-md     : 0 4px 14px rgba(0,0,0,0.55);
+    --progress-track: #21262d;
+}
+
+/* ─── OS-level dark fallback (before Streamlit sets data-theme) ──────────── */
 @media (prefers-color-scheme: dark) {
-    :root {
-        color-scheme  : light;
-        --bg-app      : #f0f4f8;
-        --bg-card     : #ffffff;
-        --border      : #e2e8f0;
-        --border-hi   : #93c5fd;
-        --text-primary: #0f172a;
-        --text-second : #334155;
-        --text-muted  : #64748b;
-        --text-faint  : #94a3b8;
-        --accent      : #2563eb;
-        --accent-dark : #1d4ed8;
-        --accent-light: #eff6ff;
-        --success     : #16a34a;
-        --success-bg  : #f0fdf4;
-        --warning     : #92400e;
-        --warning-bg  : #fffbeb;
-        --warning-bdr : #fde68a;
-        --danger      : #dc2626;
-        --danger-bg   : #fef2f2;
-        --shadow-sm   : 0 1px 3px rgba(15,23,42,0.07), 0 1px 2px rgba(15,23,42,0.04);
-        --shadow-md   : 0 4px 14px rgba(15,23,42,0.08);
+    .stApp:not([data-theme="light"]) {
+        --bg-app        : #0d1117;
+        --bg-card       : #161b22;
+        --border        : #30363d;
+        --border-hi     : #388bfd;
+        --text-primary  : #e6edf3;
+        --text-second   : #b2bfc8;
+        --text-muted    : #8b949e;
+        --text-faint    : #484f58;
+        --accent        : #3b82f6;
+        --accent-dark   : #60a5fa;
+        --accent-light  : rgba(59,130,246,0.14);
+        --accent-hover  : rgba(59,130,246,0.22);
+        --success       : #3fb950;
+        --success-bg    : rgba(63,185,80,0.12);
+        --success-bdr   : rgba(63,185,80,0.35);
+        --warning       : #e3b341;
+        --warning-bg    : rgba(187,128,9,0.12);
+        --warning-bdr   : rgba(187,128,9,0.4);
+        --warning-lbdr  : rgba(187,128,9,0.7);
+        --warn-text-2   : #e3b341;
+        --danger        : #f85149;
+        --danger-bg     : rgba(248,81,73,0.12);
+        --danger-bdr    : rgba(248,81,73,0.35);
+        --accent-bdr    : rgba(59,130,246,0.45);
+        --shadow-sm     : 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+        --shadow-md     : 0 4px 14px rgba(0,0,0,0.55);
+        --progress-track: #21262d;
     }
-    html, body, [data-testid="stAppViewContainer"], .stApp {
-        background : #f0f4f8 !important;
-        color      : #334155 !important;
-    }
-    [data-testid="stSidebar"]   { background: #ffffff !important; }
-    [data-testid="stHeader"]    { background: #f0f4f8 !important; }
-    [data-testid="stMetric"]    { background: #ffffff !important; border-color: #e2e8f0 !important; }
-    .stProgress > div > div > div { background: #e2e8f0 !important; }
-    [data-testid="stFileUploader"] section { background: #eff6ff !important; }
+    html, body { background: #0d1117 !important; }
 }
 
 /* ─── Base ───────────────────────────────────────────────────────────────── */
@@ -170,10 +206,10 @@ html, body, [data-testid="stAppViewContainer"], .stApp {
     letter-spacing: 0.04em;
     text-transform: uppercase;
 }
-.chip-blue  { background: var(--accent-light); color: var(--accent);  border: 1px solid #bfdbfe; }
-.chip-green { background: var(--success-bg);   color: var(--success); border: 1px solid #bbf7d0; }
-.chip-amber { background: var(--warning-bg);   color: #b45309;        border: 1px solid var(--warning-bdr); }
-.chip-red   { background: var(--danger-bg);    color: var(--danger);  border: 1px solid #fecaca; }
+.chip-blue  { background: var(--accent-light); color: var(--accent);       border: 1px solid var(--accent-bdr);   }
+.chip-green { background: var(--success-bg);   color: var(--success);      border: 1px solid var(--success-bdr);  }
+.chip-amber { background: var(--warning-bg);   color: var(--warn-text-2);  border: 1px solid var(--warning-bdr);  }
+.chip-red   { background: var(--danger-bg);    color: var(--danger);       border: 1px solid var(--danger-bdr);   }
 
 /* ─── Section label ──────────────────────────────────────────────────────── */
 .hc-label {
@@ -224,7 +260,7 @@ html, body, [data-testid="stAppViewContainer"], .stApp {
     border-radius: 99px !important;
 }
 .stProgress > div > div > div {
-    background   : #e2e8f0 !important;
+    background   : var(--progress-track) !important;
     border-radius: 99px !important;
 }
 
@@ -250,7 +286,7 @@ html, body, [data-testid="stAppViewContainer"], .stApp {
 }
 [data-testid="stFileUploader"] section:hover {
     border-color: var(--accent) !important;
-    background  : #dbeafe !important;
+    background  : var(--accent-hover) !important;
 }
 
 /* ─── Buttons ────────────────────────────────────────────────────────────── */
@@ -286,7 +322,7 @@ html, body, [data-testid="stAppViewContainer"], .stApp {
 .disclaimer {
     background   : var(--warning-bg);
     border       : 1px solid var(--warning-bdr);
-    border-left  : 4px solid #f59e0b;
+    border-left  : 4px solid var(--warning-lbdr);
     border-radius: var(--r-md);
     padding      : 0.85rem 1.15rem;
     font-size    : 0.84rem;
@@ -306,7 +342,7 @@ html, body, [data-testid="stAppViewContainer"], .stApp {
 }
 .result-title { font-size: 1.1rem; font-weight: 700; margin: 0; color: var(--text-primary) !important; }
 .result-body  { font-size: 0.85rem; color: var(--text-muted) !important; line-height: 1.75; margin: 0.6rem 0 0 0; }
-.result-warn  { font-size: 0.82rem; color: #b45309 !important; font-weight: 500; margin-top: 0.65rem; }
+.result-warn  { font-size: 0.82rem; color: var(--warn-text-2) !important; font-weight: 500; margin-top: 0.65rem; }
 
 /* ─── Footer ─────────────────────────────────────────────────────────────── */
 .hc-footer {
@@ -371,7 +407,7 @@ html, body, [data-testid="stAppViewContainer"], .stApp {
 .sb-class-row:last-child { border-bottom: none; }
 .sb-abbr { font-weight: 700; min-width: 42px; color: var(--accent); }
 .sb-benign    { color: var(--success); font-weight: 600; font-size: 0.75rem; }
-.sb-pre       { color: #b45309;        font-weight: 600; font-size: 0.75rem; }
+.sb-pre       { color: var(--warn-text-2); font-weight: 600; font-size: 0.75rem; }
 .sb-malignant { color: var(--danger);  font-weight: 600; font-size: 0.75rem; }
 
 /* ─── Divider ────────────────────────────────────────────────────────────── */
@@ -386,7 +422,7 @@ h1, h2, h3, h4 { font-family: 'Inter', sans-serif !important; color: var(--text-
 /* ─── Scrollbar ──────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar       { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg-app); }
-::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
 /* ─── Mobile ─────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
