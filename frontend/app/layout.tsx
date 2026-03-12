@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import ChatWidget from "./components/ChatWidget";
 
 export const metadata: Metadata = {
   title: "DermaScan AI — Skin Lesion Analysis",
@@ -15,7 +16,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       {/* Light clinical theme — no dark class */}
-      <body>{children}</body>
+      <body>
+        {children}
+        <ChatWidget />
+      </body>
     </html>
   );
 }
