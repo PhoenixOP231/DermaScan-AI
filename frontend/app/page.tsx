@@ -281,7 +281,7 @@ export default function Home() {
 
         {/* Nav */}
         <nav className="flex flex-col gap-0.5 px-3 pt-4">
-          <p className="ds-label px-2 pb-2">Workspace</p>
+          <p className="ds-label px-2 pb-2">Navigation</p>
           {NAV.map((item) => (
             <button
               key={item.label}
@@ -323,10 +323,14 @@ export default function Home() {
         >
           <div>
             <h1 className="text-base font-bold" style={{ color: "var(--text-primary)" }}>
-              Lesion Analysis
+              {activeNav === "Analysis" ? "Lesion Analysis" : activeNav}
             </h1>
             <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-              Upload a dermoscopy image for AI-powered classification
+              {activeNav === "Analysis"
+                ? "Upload a dermoscopy image for AI-powered classification"
+                : activeNav === "Model Info"
+                ? "Architecture, training details and performance metrics"
+                : "About this project and the research team"}
             </p>
           </div>
 
@@ -356,7 +360,134 @@ export default function Home() {
         <main className="flex-1 overflow-y-auto p-5 lg:p-6">
           <div className="max-w-5xl mx-auto flex flex-col gap-5">
 
+            {/* ── Model Info page ── */}
+            {activeNav === "Model Info" && (
+              <>
+                <Card title="Model Architecture">
+                  <div className="p-5 flex flex-col gap-4">
+                    {[
+                      { label: "Base Architecture",  value: "ResNet18 (He et al., 2016)" },
+                      { label: "Modification",        value: "Final FC layer replaced — 512 → 7 classes" },
+                      { label: "Input Resolution",   value: "224 × 224 pixels (ImageNet standard)" },
+                      { label: "Normalisation",       value: "Mean [0.485, 0.456, 0.406] · Std [0.229, 0.224, 0.225]" },
+                      { label: "Inference Runtime",  value: "ONNX Runtime (CPU) — no PyTorch at inference" },
+                      { label: "Model Size",          value: "~44 MB (ONNX)" },
+                    ].map(({ label, value }) => (
+                      <div key={label} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                        <span className="w-48 shrink-0 ds-label">{label}</span>
+                        <span className="text-sm" style={{ color: "var(--text-primary)" }}>{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+
+                <Card title="Training Details">
+                  <div className="p-5 flex flex-col gap-4">
+                    {[
+                      { label: "Dataset",           value: "HAM10000 — Human Against Machine with 10,000 training images (ISIC 2018)" },
+                      { label: "Total Images",      value: "10,015 dermoscopy images across 7 classes" },
+                      { label: "Training Strategy", value: "Transfer learning — ImageNet pre-trained weights, fine-tuned on HAM10000" },
+                      { label: "Optimiser",         value: "Adam · learning rate 1 × 10⁻⁴" },
+                      { label: "Loss Function",     value: "Cross-Entropy Loss" },
+                      { label: "Explainability",    value: "Class Activation Mapping (CAM) via layer4 feature maps" },
+                    ].map(({ label, value }) => (
+                      <div key={label} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                        <span className="w-48 shrink-0 ds-label">{label}</span>
+                        <span className="text-sm" style={{ color: "var(--text-primary)" }}>{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+
+                <Card title="Lesion Classes — HAM10000">
+                  <div className="p-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {Object.entries(CLASS_META).map(([abbr, meta]) => (
+                        <div
+                          key={abbr}
+                          className="flex items-center gap-3 rounded-lg px-3 py-2.5"
+                          style={{ background: "var(--bg-canvas)", border: "1px solid var(--border)" }}
+                        >
+                          <span
+                            className="h-2.5 w-2.5 rounded-full shrink-0"
+                            style={{ background: meta.colour }}
+                          />
+                          <div>
+                            <p className="text-xs font-semibold" style={{ color: "var(--text-primary)" }}>
+                              {meta.label}
+                            </p>
+                            <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>
+                              {abbr.toUpperCase()}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </Card>
+              </>
+            )}
+
+            {/* ── About page ── */}
+            {activeNav === "About" && (
+              <>
+                <Card title="About DermaScan AI">
+                  <div className="p-5 flex flex-col gap-3">
+                    <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                      DermaScan AI is an AI-powered dermoscopy image analysis tool that classifies skin
+                      lesions into seven diagnostic categories using a fine-tuned ResNet18 convolutional
+                      neural network. The tool provides real-time classification with visual explanations
+                      via Grad-CAM activation heatmaps.
+                    </p>
+                    <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                      The model was trained on the publicly available HAM10000 dataset (ISIC 2018
+                      Challenge), which contains 10,015 dermoscopic images collected from different
+                      populations spanning over 20 years. It is deployed as a serverless Next.js
+                      application using ONNX Runtime for efficient, dependency-light inference.
+                    </p>
+                  </div>
+                </Card>
+
+                <Card title="Technology Stack">
+                  <div className="p-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {[
+                        { label: "Frontend",     value: "Next.js 16, React 19, TypeScript" },
+                        { label: "Styling",      value: "Tailwind CSS 3" },
+                        { label: "ML Model",     value: "ResNet18 (ONNX)" },
+                        { label: "Inference",    value: "ONNX Runtime (serverless)" },
+                        { label: "Backend",      value: "Python · Flask · Vercel" },
+                        { label: "Dataset",      value: "HAM10000 · ISIC 2018" },
+                      ].map(({ label, value }) => (
+                        <div
+                          key={label}
+                          className="rounded-lg px-3 py-2.5"
+                          style={{ background: "var(--bg-canvas)", border: "1px solid var(--border)" }}
+                        >
+                          <p className="ds-label mb-0.5">{label}</p>
+                          <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{value}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </Card>
+
+                <div
+                  className="rounded-xl px-5 py-4"
+                  style={{ background: "var(--amber-bg)", border: "1px solid var(--amber-bdr)" }}
+                >
+                  <p className="text-xs leading-relaxed" style={{ color: "#92400e" }}>
+                    <span className="font-semibold" style={{ color: "var(--amber)" }}>Medical Disclaimer — </span>
+                    This tool is for research and educational purposes only. It does not constitute medical
+                    advice or replace professional dermatological diagnosis. Always consult a qualified
+                    healthcare provider for any skin concern.
+                  </p>
+                </div>
+              </>
+            )}
+
             {/* ── Row 1: Upload + Prediction summary ── */}
+            {activeNav === "Analysis" && (<>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
               {/* Upload card */}
@@ -657,6 +788,7 @@ export default function Home() {
                 healthcare provider for clinical decisions.
               </p>
             </div>
+            </>)}
 
           </div>
         </main>
@@ -667,7 +799,7 @@ export default function Home() {
           style={{ borderTop: "1px solid var(--border)", background: "var(--bg-surface)" }}
         >
           <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-            DermaScan AI · B.E. Computer Engineering · 2025–26
+            DermaScan AI
           </p>
           <p className="text-xs hidden sm:block" style={{ color: "var(--text-muted)" }}>
             HAM10000 · ResNet18 · Grad-CAM
