@@ -412,7 +412,7 @@ hr { border-color: var(--border) !important; }
 #  Constants
 # ═══════════════════════════════════════════════════════════════════════════════
 
-MODEL_PATH  = "model_final.pth"
+MODEL_PATH  = "backend/model_final.pth"
 IMG_SIZE    = 224
 NUM_CLASSES = 7
 
@@ -468,7 +468,7 @@ def load_model() -> nn.Module:
         nn.Linear(model.fc.in_features, NUM_CLASSES),
     )
     # Load FP16 state dict, convert weights to FP32 for stable CPU maths
-    state_dict = torch.load(MODEL_PATH, map_location=device)
+    state_dict = torch.load(MODEL_PATH, map_location=device, weights_only=True)
     state_dict = {k: v.float() for k, v in state_dict.items()}
     model.load_state_dict(state_dict)
     model.eval()
