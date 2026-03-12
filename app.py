@@ -77,10 +77,16 @@ html, body, [data-testid="stAppViewContainer"], .stApp {
     line-height: 1.6;
 }
 .block-container {
-    padding-top   : 1.5rem  !important;
+    padding-top   : 4rem    !important;
     padding-left  : 2rem    !important;
     padding-right : 2rem    !important;
     max-width     : 1200px  !important;
+}
+
+/* ─── Hide Streamlit top toolbar decoration ──────────────────────────────── */
+[data-testid="stHeader"] {
+    background: var(--bg-app) !important;
+    border-bottom: 1px solid var(--border) !important;
 }
 
 /* ─── Sidebar ────────────────────────────────────────────────────────────── */
