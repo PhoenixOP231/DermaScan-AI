@@ -15,17 +15,19 @@ Optional:
 
 from __future__ import annotations
 
-import json
 import os
 from http import HTTPStatus
 
-from flask import Flask, Request, jsonify, request
+from flask import Flask, jsonify, request
 
 # ── OpenAI client (lazy-import so the cold-start penalty is minimal) ──────────
 try:
-    from openai import OpenAI  # openai>=1.0.0
+    from openai import OpenAI, AuthenticationError, RateLimitError  # openai>=1.0.0
     _HAS_OPENAI = True
 except ImportError:
+    OpenAI = None          # type: ignore[assignment,misc]
+    AuthenticationError = Exception  # type: ignore[assignment,misc]
+    RateLimitError = Exception       # type: ignore[assignment,misc]
     _HAS_OPENAI = False
 
 app = Flask(__name__)
@@ -234,8 +236,23 @@ def chat():
             temperature=0.4,          # slightly deterministic for factual guide usage
         )
         reply = completion.choices[0].message.content or ""
+    except RateLimitError:
+        return _cors(
+            jsonify({
+                "error": (
+                    "OpenAI rate limit reached. This usually means your account has no "
+                    "active billing plan. Please add a payment method at "
+                    "platform.openai.com/settings/billing and try again."
+                )
+            }),
+            HTTPStatus.TOO_MANY_REQUESTS,
+        )
+    except AuthenticationError:
+        return _cors(
+            jsonify({"error": "Invalid OpenAI API key. Please check the OPENAI_API_KEY environment variable in Vercel."}),
+            HTTPStatus.UNAUTHORIZED,
+        )
     except Exception as exc:  # noqa: BLE001
-        # Surface a clean error message without leaking internal details
         return _cors(
             jsonify({"error": f"LLM request failed: {type(exc).__name__}"}),
             HTTPStatus.BAD_GATEWAY,
