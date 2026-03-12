@@ -5,7 +5,7 @@ Vercel invokes this file as a Python WSGI application (Flask).
 The route /api/analyze is configured in vercel.json to point here.
 
 Runtime deps (frontend/requirements.txt):
-    flask, onnxruntime-cpu, numpy, pillow
+#   flask, onnxruntime, numpy, pillow
 
 No PyTorch / torchvision / OpenCV at runtime — stays well under Vercel's
 250 MB compressed function bundle limit.
