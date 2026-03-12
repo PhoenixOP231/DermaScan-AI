@@ -1,0 +1,21 @@
+# DermaScan AI — Python Serverless Dependencies (Vercel)
+# =======================================================
+# These are installed for the api/analyze.py serverless function.
+# PyTorch / torchvision are intentionally excluded — the model is
+# served via ONNX Runtime to stay well under Vercel's 250 MB
+# compressed function bundle limit.
+#
+# Estimated compressed sizes:
+#   flask             ~3 MB
+#   onnxruntime-cpu  ~28 MB
+#   numpy             ~8 MB
+#   pillow            ~8 MB
+#   --------------------
+#   Total deps:      ~47 MB  +  model_final.onnx (~43 MB)  =  ~90 MB ✓
+#
+# 3rd-Year Engineering Project — B.E. Computer Engineering | 2025–26
+
+flask>=3.0.0
+onnxruntime-cpu>=1.17.0
+numpy>=1.24.0
+pillow>=10.0.0

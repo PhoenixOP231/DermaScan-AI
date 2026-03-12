@@ -2,5 +2,26 @@
   "framework": "nextjs",
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
-  "installCommand": "npm install"
+  "installCommand": "npm install",
+
+  "functions": {
+    "api/analyze.py": {
+      "runtime": "python3.12",
+      "maxDuration": 30
+    }
+  },
+
+  "routes": [
+    {
+      "src": "/api/analyze",
+      "dest": "/api/analyze.py",
+      "methods": ["POST"]
+    },
+    {
+      "src": "/api/health",
+      "dest": "/api/analyze.py",
+      "methods": ["GET"]
+    }
+  ]
 }
+
