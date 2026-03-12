@@ -762,8 +762,7 @@ _DISCLAIMER = (
 _FOOTER = (
     '<div class="hc-footer">'
     '<strong>DermaScan AI</strong> &nbsp;·&nbsp; '
-    'HAM10000 · ResNet18 · Grad-CAM XAI<br>'
-    'B.E. Computer Engineering · 2025–26'
+    'HAM10000 · ResNet18 · Grad-CAM XAI'
     '</div>'
 )
 
