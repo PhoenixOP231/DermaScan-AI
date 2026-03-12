@@ -13,8 +13,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className="relative z-10">{children}</body>
+    <html lang="en">
+      {/* Light clinical theme — no dark class */}
+      <body>{children}</body>
     </html>
   );
 }

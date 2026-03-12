@@ -1,75 +1,140 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ── Design tokens ─────────────────────────────────────────────────────────── */
 :root {
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+
+  /* Surface */
+  --bg-canvas  : #f4f6f9;
+  --bg-surface : #ffffff;
+  --bg-sidebar : #ffffff;
+
+  /* Border */
+  --border     : #e5e9ef;
+  --border-hi  : #2563eb;
+
+  /* Text */
+  --text-primary : #0f1923;
+  --text-secondary: #4b5768;
+  --text-muted   : #8a96a8;
+
+  /* Brand */
+  --blue       : #2563eb;
+  --blue-light : #eff6ff;
+  --blue-mid   : #dbeafe;
+
+  /* Risk */
+  --green      : #16a34a;
+  --green-bg   : #f0fdf4;
+  --green-bdr  : #bbf7d0;
+  --amber      : #b45309;
+  --amber-bg   : #fffbeb;
+  --amber-bdr  : #fde68a;
+  --red        : #dc2626;
+  --red-bg     : #fef2f2;
+  --red-bdr    : #fecaca;
+
+  /* Shadow */
+  --shadow-card: 0 1px 3px rgba(15,25,35,0.06), 0 1px 2px rgba(15,25,35,0.04);
+  --shadow-card-hover: 0 4px 16px rgba(15,25,35,0.10);
 }
 
-*,
-*::before,
-*::after {
+/* ── Reset ─────────────────────────────────────────────────────────────────── */
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-html {
-  scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
 body {
   font-family: var(--font-sans);
-  background: #020817;
-  color: #e2e8f0;
+  background: var(--bg-canvas);
+  color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
   min-height: 100dvh;
 }
 
-/* Subtle grid pattern overlay */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background-image: radial-gradient(
-      circle at 25% 20%,
-      rgba(99, 102, 241, 0.08) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      circle at 75% 80%,
-      rgba(6, 182, 212, 0.06) 0%,
-      transparent 50%
-    );
-  pointer-events: none;
-  z-index: 0;
+/* ── Scrollbar ─────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg-canvas); }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* ── Card ──────────────────────────────────────────────────────────────────── */
+.ds-card {
+  background   : var(--bg-surface);
+  border       : 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow   : var(--shadow-card);
+  transition   : box-shadow 0.2s ease;
+}
+.ds-card:hover  { box-shadow: var(--shadow-card-hover); }
+
+.ds-card-header {
+  padding      : 1rem 1.25rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  display      : flex;
+  align-items  : center;
+  justify-content: space-between;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 5px;
-}
-::-webkit-scrollbar-track {
-  background: #0f172a;
-}
-::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 4px;
+/* ── Section label ─────────────────────────────────────────────────────────── */
+.ds-label {
+  font-size     : 0.65rem;
+  font-weight   : 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color         : var(--text-muted);
 }
 
-/* Progress bar animation */
+/* ── Risk badge ────────────────────────────────────────────────────────────── */
+.badge-benign        { background: var(--green-bg); color: var(--green);  border: 1px solid var(--green-bdr); }
+.badge-malignant     { background: var(--red-bg);   color: var(--red);    border: 1px solid var(--red-bdr);   }
+.badge-precancerous  { background: var(--amber-bg); color: var(--amber);  border: 1px solid var(--amber-bdr); }
+
+/* ── Confidence bar animation ──────────────────────────────────────────────── */
 @keyframes grow-bar {
-  from {
-    width: 0%;
-  }
-  to {
-    width: var(--bar-width);
-  }
+  from { width: 0%; }
+  to   { width: var(--bar-width); }
+}
+.animate-bar {
+  animation: grow-bar 0.65s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
-.animate-bar {
-  animation: grow-bar 0.7s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+/* ── SVG ring animation ────────────────────────────────────────────────────── */
+@keyframes ring-in {
+  from { stroke-dashoffset: var(--circ); }
+  to   { stroke-dashoffset: var(--offset); }
 }
+.animate-ring {
+  animation: ring-in 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* ── Sidebar nav item ──────────────────────────────────────────────────────── */
+.nav-item {
+  display      : flex;
+  align-items  : center;
+  gap          : 0.65rem;
+  padding      : 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-size    : 0.82rem;
+  font-weight  : 500;
+  color        : var(--text-secondary);
+  cursor       : pointer;
+  transition   : background 0.15s, color 0.15s;
+  text-decoration: none;
+}
+.nav-item:hover  { background: var(--bg-canvas); color: var(--text-primary); }
+.nav-item.active {
+  background: var(--blue-light);
+  color     : var(--blue);
+}
+.nav-item.active svg { color: var(--blue); }
+
