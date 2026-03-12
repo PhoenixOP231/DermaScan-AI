@@ -2,15 +2,16 @@
 DermaScan AI — /api/chat  (Vercel Serverless Function)
 ======================================================
 Processes chat messages from the in-app assistant widget.
-Connects to the OpenAI Chat Completions API using a detailed
-system prompt that makes the LLM an expert guide for this
-specific medical-image analysis tool.
+Connects to the Google Gemini API using a detailed system prompt
+that makes the LLM an expert guide for this specific medical-image
+analysis tool.
 
 Environment variable required (set in Vercel project settings):
-    OPENAI_API_KEY  — your OpenAI secret key
+    GEMINI_API_KEY  — your Google AI Studio API key
+                      Get one free at: aistudio.google.com/app/apikey
 
 Optional:
-    OPENAI_MODEL    — defaults to "gpt-4o-mini"
+    GEMINI_MODEL    — defaults to "gemini-2.0-flash"
 """
 
 from __future__ import annotations
@@ -20,15 +21,16 @@ from http import HTTPStatus
 
 from flask import Flask, jsonify, request
 
-# ── OpenAI client (lazy-import so the cold-start penalty is minimal) ──────────
+# ── Gemini client (lazy-import so the cold-start penalty is minimal) ──────────
 try:
-    from openai import OpenAI, AuthenticationError, RateLimitError  # openai>=1.0.0
-    _HAS_OPENAI = True
+    import google.generativeai as genai  # google-generativeai>=0.8.0
+    from google.api_core.exceptions import ResourceExhausted, PermissionDenied
+    _HAS_GEMINI = True
 except ImportError:
-    OpenAI = None          # type: ignore[assignment,misc]
-    AuthenticationError = Exception  # type: ignore[assignment,misc]
-    RateLimitError = Exception       # type: ignore[assignment,misc]
-    _HAS_OPENAI = False
+    genai = None                    # type: ignore[assignment]
+    ResourceExhausted = Exception   # type: ignore[assignment]
+    PermissionDenied = Exception    # type: ignore[assignment]
+    _HAS_GEMINI = False
 
 app = Flask(__name__)
 
@@ -185,17 +187,17 @@ def chat():
     if request.method == "OPTIONS":
         return _cors(jsonify({}), HTTPStatus.NO_CONTENT)
 
-    # Validate OpenAI is available
-    if not _HAS_OPENAI:
+    # Validate Gemini is available
+    if not _HAS_GEMINI:
         return _cors(
-            jsonify({"error": "openai package is not installed in this environment."}),
+            jsonify({"error": "google-generativeai package is not installed in this environment."}),
             HTTPStatus.INTERNAL_SERVER_ERROR,
         )
 
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    api_key = os.environ.get("GEMINI_API_KEY", "").strip()
     if not api_key:
         return _cors(
-            jsonify({"error": "OPENAI_API_KEY is not configured on the server."}),
+            jsonify({"error": "GEMINI_API_KEY is not configured on the server."}),
             HTTPStatus.INTERNAL_SERVER_ERROR,
         )
 
@@ -211,45 +213,44 @@ def chat():
         )
 
     # Sanitise history — only keep role/content, cap at last 10 turns to limit tokens
+    # Gemini uses "user" and "model" roles (not "assistant")
     safe_history: list[dict] = []
     for turn in history[-10:]:
         if isinstance(turn, dict) and turn.get("role") in ("user", "assistant"):
             content = str(turn.get("content", "")).strip()
             if content:
-                safe_history.append({"role": turn["role"], "content": content})
+                gemini_role = "model" if turn["role"] == "assistant" else "user"
+                safe_history.append({"role": gemini_role, "parts": [content]})
 
-    # Build message list
-    messages = (
-        [{"role": "system", "content": SYSTEM_PROMPT}]
-        + safe_history
-        + [{"role": "user", "content": user_message}]
-    )
-
-    model = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
+    model_name = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
 
     try:
-        client = OpenAI(api_key=api_key)
-        completion = client.chat.completions.create(
-            model=model,
-            messages=messages,        # type: ignore[arg-type]
-            max_tokens=512,
-            temperature=0.4,          # slightly deterministic for factual guide usage
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel(
+            model_name=model_name,
+            system_instruction=SYSTEM_PROMPT,
+            generation_config=genai.GenerationConfig(
+                max_output_tokens=512,
+                temperature=0.4,
+            ),
         )
-        reply = completion.choices[0].message.content or ""
-    except RateLimitError:
+        # Start a chat session with prior history, then send the new message
+        chat_session = model.start_chat(history=safe_history)
+        response = chat_session.send_message(user_message)
+        reply = response.text or ""
+    except ResourceExhausted:
         return _cors(
             jsonify({
                 "error": (
-                    "OpenAI rate limit reached. This usually means your account has no "
-                    "active billing plan. Please add a payment method at "
-                    "platform.openai.com/settings/billing and try again."
+                    "Gemini API quota exceeded. Free-tier limits may have been reached. "
+                    "Check your quota at aistudio.google.com or wait a moment and retry."
                 )
             }),
             HTTPStatus.TOO_MANY_REQUESTS,
         )
-    except AuthenticationError:
+    except PermissionDenied:
         return _cors(
-            jsonify({"error": "Invalid OpenAI API key. Please check the OPENAI_API_KEY environment variable in Vercel."}),
+            jsonify({"error": "Invalid Gemini API key. Please check the GEMINI_API_KEY environment variable in Vercel."}),
             HTTPStatus.UNAUTHORIZED,
         )
     except Exception as exc:  # noqa: BLE001
